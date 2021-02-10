@@ -42,7 +42,7 @@ void createSnackBarDone(GlobalKey<ScaffoldState> keyScaffold,
 }
 
 
-void createSnackBarError(GlobalKey<ScaffoldState> keyScaffold, String message) {
+Widget createSnackBarError(GlobalKey<ScaffoldState> keyScaffold, String message) {
   keyScaffold.currentState..removeCurrentSnackBar()..showSnackBar(SnackBar(
     backgroundColor: colorRedError,
     content: Text(

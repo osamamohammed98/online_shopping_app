@@ -20,13 +20,15 @@ class _ShoppingLoginPageState extends State<ShoppingLoginPage> {
   final GlobalKey<ScaffoldState> keyScaffold = GlobalKey<ScaffoldState>();
   TextEditingController _controllerEmail, _controllerPassword;
   bool isAsyncCall = false;
+  FirebaseAuth auth;
 
   @override
   void initState() {
     super.initState();
     _controllerEmail = TextEditingController();
     _controllerPassword = TextEditingController();
-    FirebaseAuth.instance.authStateChanges().listen((user) {
+    auth = FirebaseAuth.instance;
+    auth.authStateChanges().listen((user) {
       if (user != null) {
         ExtendedNavigator.root.push(Routes.shoppingHomePage);
       }
@@ -35,27 +37,25 @@ class _ShoppingLoginPageState extends State<ShoppingLoginPage> {
 
   Future<bool> signInUser() async {
     try {
-      FirebaseAuth.instance
-          .signInWithEmailAndPassword(
-              email: _controllerEmail.text.toString(),
-              password: _controllerPassword.text.toString())
-          .whenComplete(() {
+      UserCredential credential = await auth.signInWithEmailAndPassword(
+          email: _controllerEmail.text.toString(),
+          password: _controllerPassword.text.toString());
+
+      if (credential.user.uid.isNotEmpty) {
         createSnackBarDone(keyScaffold, doneSignIn);
         return true;
-      }).catchError((onError){
-        print(onError.toString());
-        createSnackBarError(keyScaffold, onError.toString());
+      } else {
+        print("onError".toString());
+        createSnackBarError(keyScaffold, "onError".toString());
         return false;
-      });
-    } on FirebaseAuthException catch (e) {
-      print(e.toString());
-      createSnackBarError(keyScaffold, e.toString());
-      return false;
+      }
     } catch (e) {
       print(e.toString());
       createSnackBarError(keyScaffold, e.toString());
       return false;
     }
+
+
   }
 
   _onSubmitBtn() async {
@@ -84,7 +84,7 @@ class _ShoppingLoginPageState extends State<ShoppingLoginPage> {
     return Scaffold(
       key: keyScaffold,
       body: ModalProgressHUD(
-        inAsyncCall: isAsyncCall,
+        inAsyncCall: isAsyncCall ?? false,
         child: Center(
           child: Container(
             alignment: Alignment.center,
