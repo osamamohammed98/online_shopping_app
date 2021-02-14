@@ -5,11 +5,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:online_shopping_app/backend/server.dart';
+import 'package:online_shopping_app/provider/provider_firebase.dart';
 import 'package:online_shopping_app/ui/pages/shopping_product_page.dart';
 import 'package:online_shopping_app/ui/widget/custom_Action_bar.dart';
 import 'package:online_shopping_app/util/colors.dart';
 import 'package:online_shopping_app/util/strings.dart';
 import 'package:online_shopping_app/util/style.dart';
+import 'package:provider/provider.dart';
 
 class HomePageTap extends StatefulWidget {
   @override
@@ -27,20 +29,23 @@ class _HomePageTapState extends State<HomePageTap> {
   initState() {
     super.initState();
     getCountInCartStream(context).then((value) => cartItemCount = value ?? "0");
+    getListItemFromCart(context);
   }
 
   @override
   Widget build(BuildContext context) {
     screenUtil(context);
+
     return SingleChildScrollView(
       child: Column(
         children: [
           //todo this is action bar
           CustomActionBar(
-            isHaveBackBtn: false,
-            isRedBox: false,
-            count: "${cartItemCount}" ?? "0",
-          ),
+              isHaveBackBtn: false,
+              isRedBox: false,
+              count:
+                  "${Provider.of<ProviderFirebase>(context, listen: false).cartLists.length}" ??
+                      "0"),
           //todo this is action bar
 
           Container(
