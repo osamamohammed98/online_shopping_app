@@ -1,31 +1,35 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:online_shopping_app/provider/provider_firebase.dart';
 import 'package:online_shopping_app/util/strings.dart';
+import 'package:provider/provider.dart';
 
-final CollectionReference _collectionReference =
+final CollectionReference collectionReference =
     FirebaseFirestore.instance.collection(colProductCollectionName);
 final FirebaseAuth auth = FirebaseAuth.instance;
 
-final CollectionReference _collectionReferenceUser =
+final CollectionReference collectionReferenceUser =
     FirebaseFirestore.instance.collection(colUserCollection);
 
-List<dynamic> imageUrl = [];
-List<dynamic> productSize = [];
-bool isLoading = true;
-Map<String, dynamic> dataObjects = {};
-String countInCart = "";
+FirebaseFirestore savedCollection = FirebaseFirestore.instance;
 
 //todo this for products
-Future getListImageById(String id) async {
+Future getListImageById(String id, context) async {
   try {
-    DocumentSnapshot snapshot = await _collectionReference.doc(id).get();
+    DocumentSnapshot snapshot = await collectionReference.doc(id).get();
     List<dynamic> data = snapshot.data()[docProductImagesUrl];
     List<dynamic> sizes = snapshot.data()[docProductSize];
     Map<String, dynamic> dataObject = snapshot.data();
-    dataObjects = dataObject;
-    imageUrl = data;
-    productSize = sizes;
-    isLoading = false;
+
+    Provider.of<ProviderFirebase>(context, listen: false)
+        .setProductObject(dataObject);
+
+    Provider.of<ProviderFirebase>(context, listen: false).setListImaget(data);
+
+    Provider.of<ProviderFirebase>(context, listen: false).setListSizes(sizes);
+
+    Provider.of<ProviderFirebase>(context, listen: false).setLoading();
+
     return data;
   } catch (e) {
     print(e);
@@ -33,56 +37,82 @@ Future getListImageById(String id) async {
   }
 }
 
-Map<String, dynamic> getProductObject() {
-  return dataObjects ?? {"k", "n"};
-}
-
-List<String> getListImaget() {
-  var items = List<String>.from(imageUrl);
-  return items ?? ["no image in the list"];
-}
-
-List<String> getListSizes() {
-  var sizeItems = List<String>.from(productSize);
-  print(sizeItems);
-  return sizeItems;
-}
-
-getUserId() async {
-  String id = await auth.currentUser != null ? auth.currentUser.uid : null;
+String getUserId() {
+  String id = auth.currentUser != null ? auth.currentUser.uid : null;
   return id;
 }
 
-//todo this for add to cart
-Future addToCart({String id , String selectedSize}) async {
+Future saveCart({String id, String productId, Map<String, dynamic> map}) async {
   try {
-    return _collectionReferenceUser
-        .doc(await getUserId())
-        .collection(colUserCartCollection)
-        .doc(id)
-        .set({
-      colUserCartSizeCollection: "$selectedSize",
-    }).whenComplete(() => isLoading = false);
+    savedCollection
+        .collection(savedCollectionName)
+        .doc(getUserId())
+        .collection("save")
+        .add(map);
   } catch (e) {
     print(e);
   }
 }
 
-getCountInCartStream() async {
+Future getSavedItem(context) async {
   try {
-    QuerySnapshot snapshot = await _collectionReferenceUser
+    QuerySnapshot snapshot = await savedCollection
+        .collection(savedCollectionName)
+        .doc(getUserId())
+        .collection("save")
+        .get();
+
+    List<QueryDocumentSnapshot> saved = snapshot.docs;
+    print("saved${saved[0]["desc"]}");
+    Provider.of<ProviderFirebase>(context, listen: false)
+        .setSavedListsItem(saved);
+  } catch (e) {
+    print(e);
+  }
+}
+
+//todo this for add to cart
+Future addToCart(context, {String id, String selectedSize, Map map}) async {
+  try {
+    return collectionReferenceUser
+        .doc(getUserId())
+        .collection(colUserCartCollection)
+        .add({
+      ...map,
+      colUserCartSizeCollection: "$selectedSize",
+    }).whenComplete(() => Provider.of<ProviderFirebase>(context, listen: false)
+            .setLoading());
+  } catch (e) {
+    print(e);
+  }
+}
+
+Future getListItemFromCart(context) async {
+  try {
+    QuerySnapshot snapshot = await collectionReferenceUser
         .doc(await getUserId())
         .collection(colUserCartCollection)
         .get();
-    countInCart = "${snapshot.size}";
-    isLoading = false;
-    return countInCart;
+    List<QueryDocumentSnapshot> listItemsInCarts = snapshot.docs;
+    print("lists ${listItemsInCarts[0]["imagesUrl"]}");
+    Provider.of<ProviderFirebase>(context, listen: false)
+        .setItemsCart(listItemsInCarts);
   } catch (e) {
     print(e);
   }
 }
 
-getCountInCart() {
-  String count = countInCart;
-  return count;
+Future<String> getCountInCartStream(context) async {
+  try {
+    QuerySnapshot snapshot = await collectionReferenceUser
+        .doc(await getUserId())
+        .collection(colUserCartCollection)
+        .get();
+    Provider.of<ProviderFirebase>(context, listen: false)
+        .setCountInCart("${snapshot.size}");
+    Provider.of<ProviderFirebase>(context, listen: false).setLoading();
+    return "${snapshot.size}";
+  } catch (e) {
+    print(e);
+  }
 }

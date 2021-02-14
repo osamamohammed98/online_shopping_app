@@ -39,6 +39,7 @@ dependencies:
   flutter_svg:
   cached_network_image: ^2.5.0
   carousel_images: ^1.0.3
+  provider:
 
 dev_dependencies:
   flutter_test:

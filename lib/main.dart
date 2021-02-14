@@ -4,8 +4,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:online_shopping_app/provider/provider_firebase.dart';
 import 'package:online_shopping_app/util/colors.dart';
 import 'package:online_shopping_app/util/routes/custom_routes.gr.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,20 +28,23 @@ class MyApp extends StatelessWidget {
       DeviceOrientation.portraitDown,
       DeviceOrientation.portraitUp,
     ]);
-    return MaterialApp(
-      theme: ThemeData(
-        bottomNavigationBarTheme: BottomNavigationBarThemeData(
-          backgroundColor: colorWhite,
-          selectedItemColor: colorRed,
+    return ChangeNotifierProvider<ProviderFirebase>(
+      create: (context) => ProviderFirebase(),
+      child: MaterialApp(
+        theme: ThemeData(
+          bottomNavigationBarTheme: BottomNavigationBarThemeData(
+            backgroundColor: colorWhite,
+            selectedItemColor: colorRed,
+          ),
+          textTheme: GoogleFonts.poppinsTextTheme(
+            Theme.of(context).textTheme,
+          ),
         ),
-        textTheme: GoogleFonts.poppinsTextTheme(
-          Theme.of(context).textTheme,
-        ),
+        debugShowCheckedModeBanner: false,
+        title: 'Shopping App',
+        builder: ExtendedNavigator.builder<CustomRoutes>(router: CustomRoutes()),
+        // home: MyHomePage(title: 'Flutter Demo Home Page'),
       ),
-      debugShowCheckedModeBanner: false,
-      title: 'Shopping App',
-      builder: ExtendedNavigator.builder<CustomRoutes>(router: CustomRoutes()),
-      // home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }

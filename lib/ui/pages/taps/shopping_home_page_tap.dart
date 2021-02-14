@@ -21,10 +21,12 @@ class _HomePageTapState extends State<HomePageTap> {
       FirebaseFirestore.instance.collection(colProductCollectionName);
 
   FirebaseAuth auth = FirebaseAuth.instance;
+  String cartItemCount = "0";
+
   @override
-  initState(){
+  initState() {
     super.initState();
-    getCountInCartStream();
+    getCountInCartStream(context).then((value) => cartItemCount = value ?? "0");
   }
 
   @override
@@ -37,7 +39,7 @@ class _HomePageTapState extends State<HomePageTap> {
           CustomActionBar(
             isHaveBackBtn: false,
             isRedBox: false,
-            count: "${getCountInCart()}" ?? "0",
+            count: "${cartItemCount}" ?? "0",
           ),
           //todo this is action bar
 

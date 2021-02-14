@@ -15,6 +15,11 @@ var colUserCartSizeCollection = "size";
 ///todo this for collection user keys
 
 
+///todo this for saved collection
+var savedCollectionName = "saved";
+///todo this for saved collection
+
+
 //todo this for login page
 var loginTitlePage = "Welcome User,\nLogin to your account";
 var requiredField = "this filed is required";
@@ -48,3 +53,14 @@ var selectSize = "Select Size";
 var addToCarts = "Add To Cart";
 var successProcess = "Success Process";
 //todo this for product page
+
+//todo this for cart page
+var cartTitle = "Cart";
+var cartTotal = "Total";
+var cartSize = "Size - ";
+//todo this for cart page
+
+//todo this for search page
+var hintSearch = "Search here...";
+var searchResults = "Search Results";
+//todo this for search page

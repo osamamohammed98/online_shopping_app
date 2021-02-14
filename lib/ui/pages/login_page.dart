@@ -30,7 +30,7 @@ class _ShoppingLoginPageState extends State<ShoppingLoginPage> {
     auth = FirebaseAuth.instance;
     auth.authStateChanges().listen((user) {
       if (user != null) {
-        ExtendedNavigator.root.push(Routes.shoppingHomePage);
+        ExtendedNavigator.root.popAndPush(Routes.shoppingHomePage);
       }
     });
   }
@@ -66,7 +66,7 @@ class _ShoppingLoginPageState extends State<ShoppingLoginPage> {
         setState(() {
           isAsyncCall = true;
         });
-        ExtendedNavigator.root.replace(
+        ExtendedNavigator.root.popAndPush(
           Routes.shoppingHomePage,
         );
       } else {
